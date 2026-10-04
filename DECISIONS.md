@@ -22,3 +22,16 @@
   **Why:** DOn't want to try sending invalid emails information.
 
 - **Finding:** 2900 valid subscribers. 
+
+  - **Finding:** Mismatched source names. Capitilzation problems and twitter-x
+  **Rule:** Lowercase everything and twitter maps to x.
+  **Why:** So we know the sources and are duplicating them .
+
+- **Finding:** Web events are have multiple rows. 
+  **Rule:** Once a visitor ID has an email on any row, every row with that visitor ID belongs to that subscriber. 
+  **Why:** If we don't, every subscriber would show exactly one visit to the same page, which tells nothing. 
+
+
+- **Finding:** 30 unmatched app users. 
+  **Rule:** Unseen user_id still gets a profile and is not dropped. 
+  **Why:** According to the rules. 
