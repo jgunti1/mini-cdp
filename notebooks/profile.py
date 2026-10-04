@@ -25,7 +25,7 @@ dupes = subs[subs["email_norm"].duplicated(keep=False) & (subs["email_norm"] != 
 real = subs[subs["email_norm"] != ""]
 cols = ["signup_date", "status", "acquisition_source", "last_open_date"]
 conflicts = real.groupby("email_norm")[cols].nunique().gt(1).sum()
-# print(conflicts)
+print(conflicts)
 
 # print(real["email"].map(repr).sample(40, random_state=1).to_list())
 
@@ -34,6 +34,6 @@ has_space = subs[subs["email"] != subs["email"].str.strip()]
 # print("emails with extra spaces:", len(has_space))
 # print(has_space["email"].map(repr).head(5).to_list())
 
-subs["email_norm"] = subs["email"].str.strip().str.lower()
-real = subs[subs["email_norm"] != ""]
-print("duplicates after strip + lowercase:", real["email_norm"].duplicated().sum())
+# subs["email_norm"] = subs["email"].str.strip().str.lower()
+# real = subs[subs["email_norm"] != ""]
+# print("duplicates after strip + lowercase:", real["email_norm"].duplicated().sum())
