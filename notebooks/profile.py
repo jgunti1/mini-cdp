@@ -22,10 +22,10 @@ real = subs[subs["email"] != ""]
 dupes = subs[subs["email_norm"].duplicated(keep=False) & (subs["email_norm"] != "")]
 # print(dupes.sort_values("email_norm").head(20))
 
-real = subs[subs["email_norm"] != ""]
+# real = subs[subs["email_norm"] != ""]
 cols = ["signup_date", "status", "acquisition_source", "last_open_date"]
 conflicts = real.groupby("email_norm")[cols].nunique().gt(1).sum()
-print(conflicts)
+# print(conflicts)
 
 # print(real["email"].map(repr).sample(40, random_state=1).to_list())
 
@@ -34,6 +34,19 @@ has_space = subs[subs["email"] != subs["email"].str.strip()]
 # print("emails with extra spaces:", len(has_space))
 # print(has_space["email"].map(repr).head(5).to_list())
 
-# subs["email_norm"] = subs["email"].str.strip().str.lower()
-# real = subs[subs["email_norm"] != ""]
+subs["email_norm"] = subs["email"].str.strip().str.lower()
+real = subs[subs["email_norm"] != ""]
 # print("duplicates after strip + lowercase:", real["email_norm"].duplicated().sum())
+
+
+'''
+Check fake emails
+'''
+no_at = real[~real["email_norm"].str.contains("@")]
+# print("emails with no @:", len(no_at))
+# print(no_at)
+
+pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
+invalid = real[~real["email_norm"].str.match(pattern)]
+print("invalid emails:", len(invalid))
+print(invalid)

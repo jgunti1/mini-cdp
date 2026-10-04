@@ -16,3 +16,9 @@
   -- Status: Unsubscribed if any row says so. 
   -- Acquistion source: Keep the source from the row with the earliest signup date. 
   **Why:** so we don't spam people and so we have the most up to date information. Earliest sign up date is for when they actually joined. 
+
+ - **Finding:** 2 rows with invalid emails entries. 
+  **Rule:** Send to a rejected table.
+  **Why:** DOn't want to try sending invalid emails information.
+
+- **Finding:** 2900 valid subscribers. 
