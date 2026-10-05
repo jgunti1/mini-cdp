@@ -46,3 +46,7 @@
 - **Decision:** Separating profiles and subscribers.
   **Alternative:** Have everyone in subscribers. 
   **Why:** A profile is a person but people might be null, but we still need to create a profile for them, for example, if they are a app user but not a subscriebr. 
+
+  ## Limitations
+  **Limitation 1:** Rerunnign the import erases people who only came in through the webhook.
+  **Solution:** Solve later.
