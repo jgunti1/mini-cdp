@@ -41,3 +41,8 @@
 - **Decision:** Creating a dictionary for checking source aliases. Ex: Twitter to X.
   **Alternative:** Hardcode a list of common sources. 
   **Why:** In the off-chance that some name does change, it should be a simple fix. Unnecessary to change now. 
+
+
+- **Decision:** Separating profiles and subscribers.
+  **Alternative:** Have everyone in subscribers. 
+  **Why:** A profile is a person but people might be null, but we still need to create a profile for them, for example, if they are a app user but not a subscriebr. 
