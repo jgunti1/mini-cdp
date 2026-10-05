@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mini CDP</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 1rem; color: #222; }
+    input[type=text] { padding: .5rem; width: 60%; }
+    button { padding: .5rem 1rem; }
+    table { border-collapse: collapse; width: 100%; margin: .5rem 0 1.5rem; }
+    th, td { text-align: left; padding: .35rem .6rem; border-bottom: 1px solid #ddd; }
+    .muted { color: #777; }
+  </style>
+</head>
+<body>
+  <h1>Mini CDP</h1>
+
+  <form method="get" action="/">
+    <input type="text" name="email" value="{{ email }}" placeholder="subscriber email">
+    <button type="submit">Look up</button>
+  </form>
+
+  {% if searched and not result %}
+    <p>No one found for that email.</p>
+  {% endif %}
+
+  {% if result %}
+    <h2>{{ result.profile.email }}</h2>
+
+    <h3>Newsletter</h3>
+    {% if result.subscriber %}
+      <table>
+        <tr><th>Status</th><td>{{ result.subscriber.status }}</td></tr>
+        <tr><th>Signed up</th><td>{{ result.subscriber.signup_date }}</td></tr>
+        <tr><th>Source</th><td>{{ result.subscriber.acquisition_source or "unknown" }}</td></tr>
+        <tr><th>Last open</th><td>{{ result.subscriber.last_open_date or "never" }}</td></tr>
+      </table>
+    {% else %}
+      <p class="muted">Not a newsletter subscriber.</p>
+    {% endif %}
+
+    <h3>App</h3>
+    {% if result.app_users %}
+      <table>
+        <tr><th>User ID</th><th>Created</th></tr>
+        {% for user in result.app_users %}
+          <tr><td>{{ user.user_id }}</td><td>{{ user.created_at }}</td></tr>
+        {% endfor %}
+      </table>
+    {% else %}
+      <p class="muted">No app account.</p>
+    {% endif %}
+
+    <h3>Site visits ({{ result.web_events | length }})</h3>
+    {% if result.web_events %}
+      <table>
+        <tr><th>When</th><th>Page</th><th>Source</th></tr>
+        {% for visit in result.web_events %}
+          <tr><td>{{ visit.timestamp }}</td><td>{{ visit.page }}</td><td>{{ visit.utm_source or "" }}</td></tr>
+        {% endfor %}
+      </table>
+    {% else %}
+      <p class="muted">No site visits linked to this person.</p>
+    {% endif %}
+  {% endif %}
+</body>
+</html>
