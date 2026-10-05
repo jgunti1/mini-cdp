@@ -35,3 +35,9 @@
 - **Finding:** 30 unmatched app users. 
   **Rule:** Unseen user_id still gets a profile and is not dropped. 
   **Why:** According to the rules. 
+
+  ## Design decisions
+
+- **Decision:** Creating a dictionary for checking source aliases. Ex: Twitter to X.
+  **Alternative:** Hardcode a list of common sources. 
+  **Why:** In the off-chance that some name does change, it should be a simple fix. Unnecessary to change now. 
