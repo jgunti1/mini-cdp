@@ -1,8 +1,13 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
+from dotenv import load_dotenv
+
+load_dotenv()  # read settings from a local .env file, if there is one
+
+from fastapi import Depends, FastAPI, Request
 from fastapi.templating import Jinja2Templates
 
+from app.auth import require_login
 from app.db import get_connection, init_db
 from app.importer import run_import
 from app.queries import lookup_profile
@@ -29,7 +34,7 @@ def health():
     return {"status": "ok"}
 
 
-@app.get("/")
+@app.get("/", dependencies=[Depends(require_login)])
 def home(request: Request, email: str = ""):
     searched = email.strip() != ""
     result = None

@@ -1,0 +1,1 @@
+Ran into problems with Railway. AI guessed at the issues but I found that Railway was authorized for github but not installed on the repo. 
