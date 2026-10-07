@@ -4,7 +4,8 @@ from app.normalize import normalize_source
 
 STATUSES = ("active", "unsubscribed", "any")
 ENGAGEMENTS = ("any", "not_opened_in_days", "never_opened")
-APP_CHOICES = ("any", "yes", "no")
+APP_CHOICES = ("any", "yes", "no", "used_recently")
+APP_RECENT_DAYS = 7
 
 
 def list_sources(conn):
@@ -49,6 +50,14 @@ def build_segment(conn, source="any", status="active", engagement="any", days=30
         conditions.append("EXISTS (SELECT 1 FROM app_users a WHERE a.profile_id = s.profile_id)")
     elif has_app == "no":
         conditions.append("NOT EXISTS (SELECT 1 FROM app_users a WHERE a.profile_id = s.profile_id)")
+
+    elif has_app == "used_recently":
+        # Has at least one app event (from the webhook) in the last 7 days.
+        conditions.append(
+            "EXISTS (SELECT 1 FROM app_events e WHERE e.profile_id = s.profile_id"
+            " AND e.timestamp >= date(?, ?))"
+        )
+        params.extend([TODAY, f"-{APP_RECENT_DAYS} days"])
 
     where = " AND ".join(conditions) if conditions else "1 = 1"
     sql = (

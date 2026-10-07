@@ -49,6 +49,7 @@
       <option value="any" {% if filters.has_app == "any" %}selected{% endif %}>any</option>
       <option value="yes" {% if filters.has_app == "yes" %}selected{% endif %}>has the app</option>
       <option value="no" {% if filters.has_app == "no" %}selected{% endif %}>no app account</option>
+      <option value="used_recently" {% if filters.has_app == "used_recently" %}selected{% endif %}>used the app in the last 7 days</option>
     </select>
 
     <button type="submit" name="run" value="1">Build segment</button>

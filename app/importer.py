@@ -42,7 +42,6 @@ def merge_subscriber(existing, new):
         existing["acquisition_source"] = new["acquisition_source"]
     if (new["last_open_date"] or "") > (existing["last_open_date"] or ""):
         existing["last_open_date"] = new["last_open_date"]
-        # earliest sign up wins
     if new["status"] == "unsubscribed":
         existing["status"] = "unsubscribed"
 
@@ -101,7 +100,7 @@ def load_app_users(conn):
             continue
         profile_id = get_or_create_profile(conn, email)
         conn.execute(
-            "INSERT INTO app_users (user_id, profile_id, created_at) VALUES (?, ?, ?)",
+            "INSERT OR IGNORE INTO app_users (user_id, profile_id, created_at) VALUES (?, ?, ?)",
             (row["user_id"].strip(), profile_id, row["created_at"].strip()),
         )
         counts["loaded"] += 1
@@ -138,10 +137,17 @@ def load_web_events(conn):
 
 
 def run_import():
+    """Load the CSVs. Safe to run again: it never deletes people.
+
+    Subscribers, web events and rejects come only from the CSVs, so they are cleared
+    and reloaded. Profiles and app users are kept and added to, because the webhook
+    also creates them and those people are in no CSV.
+    """
     init_db()
     conn = get_connection()
-    for table in ("web_events", "app_users", "subscribers", "rejected_rows", "profiles"):
-        conn.execute(f"DELETE FROM {table}")
+    conn.execute("DELETE FROM web_events")
+    conn.execute("DELETE FROM subscribers")
+    conn.execute("DELETE FROM rejected_rows")
     report = {
         "subscribers": load_subscribers(conn),
         "app_users": load_app_users(conn),

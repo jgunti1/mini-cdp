@@ -18,16 +18,16 @@
   <p><strong>Lookup</strong> | <a href="/segments">Segments</a></p>
 
   <form method="get" action="/">
-    <input type="text" name="email" value="{{ email }}" placeholder="subscriber email">
+    <input type="text" name="email" value="{{ email }}" placeholder="email or app user ID">
     <button type="submit">Look up</button>
   </form>
 
   {% if searched and not result %}
-    <p>No one found for that email.</p>
+    <p>No one found for that email or user ID.</p>
   {% endif %}
 
   {% if result %}
-    <h2>{{ result.profile.email }}</h2>
+    <h2>{{ result.profile.email or "Email not known yet" }}</h2>
 
     <h3>Newsletter</h3>
     {% if result.subscriber %}
@@ -46,11 +46,28 @@
       <table>
         <tr><th>User ID</th><th>Created</th></tr>
         {% for user in result.app_users %}
-          <tr><td>{{ user.user_id }}</td><td>{{ user.created_at }}</td></tr>
+          <tr><td>{{ user.user_id }}</td><td>{{ user.created_at or "unknown" }}</td></tr>
         {% endfor %}
       </table>
     {% else %}
       <p class="muted">No app account.</p>
+    {% endif %}
+
+    <h3>App activity ({{ result.app_events | length }})</h3>
+    {% if result.app_events %}
+      <table>
+        <tr><th>When (UTC)</th><th>Event</th><th>Device</th><th>Details</th></tr>
+        {% for item in result.app_events %}
+          <tr>
+            <td>{{ item.timestamp }}</td>
+            <td>{{ item.event }}{% if not item.user_id %} <span class="muted">(before login)</span>{% endif %}</td>
+            <td>{{ item.device_id }}</td>
+            <td>{{ item.properties if item.properties != "{}" else "" }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    {% else %}
+      <p class="muted">No app events received yet.</p>
     {% endif %}
 
     <h3>Site visits ({{ result.web_events | length }})</h3>

@@ -71,3 +71,6 @@
 
 **Limitation 2:** Page shows the first 200 rows and no export.
 **Solution:** Add export and/or show more rows. 
+
+**Limitation 3:** If two or more people share a device, anonymous events all go to whoever logged in first. 
+**Solution:** Unsure.
