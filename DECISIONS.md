@@ -45,8 +45,29 @@
 
 - **Decision:** Separating profiles and subscribers.
   **Alternative:** Have everyone in subscribers. 
-  **Why:** A profile is a person but people might be null, but we still need to create a profile for them, for example, if they are a app user but not a subscriebr. 
+  **Why:** A profile is a person but people might be null, but we still need to create a profile for them, for example, if they are a app user but not a subscriber. 
+
+- **Decision:** Today is fixed at 2026-09-28 defined once in config.py.
+  **Alternative:** Use real date.
+  **Why:** Eventually the webhook and assistant would end up with different values, which would give different answers to the same questions. 
+
+
+- **Decision:** Segments include active subscribers only by default
+  **Alternative:** Include everyone and the let the user filter.
+  **Why:** Don't want to email people who aren't subscribed. 
+
+
+- **Decision:** "Not opened in N days" means they opened before and then stopped. People who never opened are excluded and have their own filter.
+  **Alternative:** Count people who have never opened as cold if they signed up more than N days ago. 
+  **Why:** Probably better to assume they don't use it and get more interaction than they use it less than what we think. 
+
+- **Decision:** Filter values are checked against a fixed list on server.
+**Alternative:** Trust the dropdowns. 
+**Why:** A user could manually change it to something invalid. 
 
   ## Limitations
-  **Limitation 1:** Rerunnign the import erases people who only came in through the webhook.
-  **Solution:** Solve later.
+**Limitation 1:** Rerunnign the import erases people who only came in through the webhook.
+**Solution:** Solve later.
+
+**Limitation 2:** Page shows the first 200 rows and no export.
+**Solution:** Add export and/or show more rows. 

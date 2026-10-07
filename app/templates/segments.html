@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mini CDP: Segments</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 860px; margin: 2rem auto; padding: 0 1rem; color: #222; }
+    form { display: grid; grid-template-columns: 12rem 1fr; gap: .6rem 1rem; align-items: center; max-width: 34rem; }
+    select, input[type=number] { padding: .4rem; }
+    button { padding: .5rem 1rem; grid-column: 2; justify-self: start; }
+    table { border-collapse: collapse; width: 100%; margin: .5rem 0 1.5rem; }
+    th, td { text-align: left; padding: .35rem .6rem; border-bottom: 1px solid #ddd; }
+    .muted { color: #777; }
+  </style>
+</head>
+<body>
+  <h1>Mini CDP</h1>
+  <p><a href="/">Lookup</a> | <strong>Segments</strong></p>
+
+  <form method="get" action="/segments">
+    <label for="source">Signed up from</label>
+    <select id="source" name="source">
+      <option value="any">any source</option>
+      {% for name in sources %}
+        <option value="{{ name }}" {% if filters.source == name %}selected{% endif %}>{{ name }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="status">Status</label>
+    <select id="status" name="status">
+      <option value="active" {% if filters.status == "active" %}selected{% endif %}>active only</option>
+      <option value="unsubscribed" {% if filters.status == "unsubscribed" %}selected{% endif %}>unsubscribed only</option>
+      <option value="any" {% if filters.status == "any" %}selected{% endif %}>any status</option>
+    </select>
+
+    <label for="engagement">Opens</label>
+    <select id="engagement" name="engagement">
+      <option value="any" {% if filters.engagement == "any" %}selected{% endif %}>any</option>
+      <option value="not_opened_in_days" {% if filters.engagement == "not_opened_in_days" %}selected{% endif %}>opened before, but not in the last N days</option>
+      <option value="never_opened" {% if filters.engagement == "never_opened" %}selected{% endif %}>never opened</option>
+    </select>
+
+    <label for="days">N days</label>
+    <input id="days" type="number" name="days" min="1" max="365" value="{{ filters.days }}">
+
+    <label for="has_app">App account</label>
+    <select id="has_app" name="has_app">
+      <option value="any" {% if filters.has_app == "any" %}selected{% endif %}>any</option>
+      <option value="yes" {% if filters.has_app == "yes" %}selected{% endif %}>has the app</option>
+      <option value="no" {% if filters.has_app == "no" %}selected{% endif %}>no app account</option>
+    </select>
+
+    <button type="submit" name="run" value="1">Build segment</button>
+  </form>
+
+  {% if error %}<p>{{ error }}</p>{% endif %}
+
+  {% if rows is not none %}
+    <h2>{{ rows | length }} subscribers</h2>
+    {% if rows | length > 200 %}<p class="muted">Showing the first 200.</p>{% endif %}
+    <table>
+      <tr><th>Email</th><th>Signed up</th><th>Status</th><th>Source</th><th>Last open</th></tr>
+      {% for row in rows[:200] %}
+        <tr>
+          <td><a href="/?email={{ row.email | urlencode }}">{{ row.email }}</a></td>
+          <td>{{ row.signup_date }}</td>
+          <td>{{ row.status }}</td>
+          <td>{{ row.acquisition_source or "" }}</td>
+          <td>{{ row.last_open_date or "never" }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+</body>
+</html>
