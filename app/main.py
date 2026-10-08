@@ -4,13 +4,16 @@ from dotenv import load_dotenv
 
 load_dotenv()  # read settings from a local .env file, if there is one
 
+import os
 import sqlite3
 
 from fastapi import Depends, FastAPI, HTTPException, Request
 from pydantic import ValidationError
 from fastapi.templating import Jinja2Templates
 
+from app import assistant
 from app.auth import require_login
+from app.pii import PIILeak
 from app.db import get_connection, init_db
 from app.importer import run_import
 from app.queries import lookup_profile
@@ -76,6 +79,29 @@ def segments(
     filters = {"source": source, "status": status, "engagement": engagement, "days": days, "has_app": has_app}
     return templates.TemplateResponse(
         request, "segments.html", {"sources": sources, "filters": filters, "rows": rows, "error": error}
+    )
+
+
+@app.get("/assistant", dependencies=[Depends(require_login)])
+def assistant_page(request: Request, q: str = ""):
+    question = q.strip()[:500]
+    result = None
+    error = None
+    if question:
+        if not os.environ.get("ANTHROPIC_API_KEY"):
+                error = f"The assistant could not answer right now ({type(problem).__name__}: {str(problem)[:300]})."
+        else:
+            conn = get_connection()
+            try:
+                result = assistant.answer_question(conn, question)
+            except PIILeak as leak:
+                error = str(leak)
+            except Exception as problem:  # the AI service was unreachable, refused the key, etc.
+                error = f"The assistant could not answer right now ({type(problem).__name__})."
+            finally:
+                conn.close()
+    return templates.TemplateResponse(
+        request, "assistant.html", {"question": question, "result": result, "error": error}
     )
 
 

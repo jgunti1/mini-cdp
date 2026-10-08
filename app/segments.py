@@ -1,4 +1,6 @@
 """Build a segment: a list of subscribers matching a set of filters."""
+from datetime import date
+
 from app.config import TODAY
 from app.normalize import normalize_source
 
@@ -16,7 +18,8 @@ def list_sources(conn):
     return [row["acquisition_source"] for row in rows]
 
 
-def build_segment(conn, source="any", status="active", engagement="any", days=30, has_app="any"):
+def build_segment(conn, source="any", status="active", engagement="any", days=30, has_app="any",
+                  signup_from=None, signup_to=None):
     """Return the subscribers matching the filters, as a list of rows.
 
     Every value the user chose is passed to the database as a ? parameter.
@@ -45,6 +48,13 @@ def build_segment(conn, source="any", status="active", engagement="any", days=30
         params.extend([TODAY, f"-{int(days)} days"])
     elif engagement == "never_opened":
         conditions.append("s.last_open_date IS NULL")
+
+    # Optional signup date range (YYYY-MM-DD, inclusive). Used by the assistant.
+    for value, comparison in ((signup_from, ">="), (signup_to, "<=")):
+        if value:
+            date.fromisoformat(value)  # raises ValueError if it is not a real date
+            conditions.append(f"s.signup_date {comparison} ?")
+            params.append(value)
 
     if has_app == "yes":
         conditions.append("EXISTS (SELECT 1 FROM app_users a WHERE a.profile_id = s.profile_id)")

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mini CDP: Assistant</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 860px; margin: 2rem auto; padding: 0 1rem; color: #222; }
+    input[type=text] { padding: .5rem; width: 75%; }
+    button { padding: .5rem 1rem; }
+    table { border-collapse: collapse; width: 100%; margin: .5rem 0 1.5rem; }
+    th, td { text-align: left; padding: .35rem .6rem; border-bottom: 1px solid #ddd; }
+    .muted { color: #777; }
+    .answer { background: #f4f1ec; padding: .8rem 1rem; border-radius: 6px; }
+    .notice { border-left: 4px solid #c97; padding: .4rem .8rem; }
+    pre { background: #f6f6f6; padding: .6rem; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+    details { margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <h1>Mini CDP</h1>
+  <p><a href="/">Lookup</a> | <a href="/segments">Segments</a> | <strong>Assistant</strong></p>
+
+  <form method="get" action="/assistant">
+    <input type="text" name="q" value="{{ question }}" maxlength="500" placeholder="Ask about your subscribers in plain English">
+    <button type="submit">Ask</button>
+  </form>
+  <p class="muted">
+    Try: "How many Instagram signups went cold last month?" &middot;
+    "Build me a list of our most engaged readers" &middot;
+    "Which pages do new subscribers hit first?"
+  </p>
+
+  {% if error %}<p class="notice">{{ error }}</p>{% endif %}
+
+  {% if result %}
+    {% if result.question_was_scrubbed %}
+      <p class="notice">An email address or ID was removed from your question before it was sent to the AI model.
+        To see one person, use the <a href="/">Lookup</a> page.</p>
+    {% endif %}
+
+    <p class="answer">{{ result.answer }}</p>
+
+    {% for display in result.displays %}
+      <h2>{{ display.title }}</h2>
+      {% if display.note %}<p class="muted">{{ display.note }}</p>{% endif %}
+      <table>
+        <tr>{% for column in display.columns %}<th>{{ column }}</th>{% endfor %}</tr>
+        {% for row in display.rows %}
+          <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+        {% endfor %}
+      </table>
+    {% endfor %}
+
+    <details>
+      <summary>What the AI model saw ({{ result.trace | length }} messages)</summary>
+      <p class="muted">This is everything that was sent to and received from the model for this question.
+        The tables above were filled in by this application and were never sent.</p>
+      {% for step in result.trace %}
+        <p><strong>{{ step.direction }}</strong></p>
+        <pre>{{ step.content | tojson(indent=2) }}</pre>
+      {% endfor %}
+    </details>
+  {% endif %}
+</body>
+</html>

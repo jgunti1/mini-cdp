@@ -1,1 +1,3 @@
 Ran into problems with Railway. AI guessed at the issues but I found that Railway was authorized for github but not installed on the repo. 
+
+The AI-written assistant passed all tests against a stand-in service, then failed on the first real call with a 400 error. The page hid the error detail, so I ran the code from the terminal to get the full message. The cause: the code rebuilt the model's reply in a simplified form and dropped "thinking" blocks, which the stand-in never produced. Fix: send the reply back unchanged. Added a test with a thinking block so this can't come back.
