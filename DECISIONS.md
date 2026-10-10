@@ -92,3 +92,16 @@ Transparency: the page shows "What the AI model saw" for every answer. Alternati
 
 **Limitation 3:** If two or more people share a device, anonymous events all go to whoever logged in first. 
 **Solution:** Unsure.
+
+### Channel report 
+
+- **Problem:** Which acquisition channels bring readers who stay, so the Growth team knows where to focus.
+- **Decision:** "Stayed" = still active and opened an email in the last 30 days.
+  **Alternative:** count anyone still subscribed.
+  **Why:** Just so we have reasonable time range to judge. 
+- **Decision:** Only count subscribers who signed up 30+ days before Sept 28.
+  **Alternative:** count everyone.
+  **Why:** We might be biased because if people signed up yesterday than they haven't really had time to leave. 
+- **Decision:** Show each channel's share of the total, and flag channels under 200 subscribers as a small sample.
+  **Why:** So we don't overweight certain channels more than others. Also helps interpret results better. 
+- **Recommendation:** Referral readers stay best: 68% are still engaged after a month and only 7% unsubscribe, so we should grow referrals, for example by asking our most engaged readers to invite a friend.
