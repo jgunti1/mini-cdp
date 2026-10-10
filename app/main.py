@@ -17,6 +17,7 @@ from app.pii import PIILeak
 from app.db import get_connection, init_db
 from app.importer import run_import
 from app.queries import lookup_profile
+from app.insights import CHANNEL_RULES, channel_report
 from app.segments import build_segment, list_sources
 from app.webhook import MAX_BODY_BYTES, AppEvent, get_secret, process_event, verify_signature
 
@@ -82,6 +83,16 @@ def segments(
     )
 
 
+@app.get("/channels", dependencies=[Depends(require_login)])
+def channels(request: Request):
+    conn = get_connection()
+    report = channel_report(conn)
+    conn.close()
+    return templates.TemplateResponse(
+        request, "channels.html", {"report": report, "rules": CHANNEL_RULES}
+    )
+
+
 @app.get("/assistant", dependencies=[Depends(require_login)])
 def assistant_page(request: Request, q: str = ""):
     question = q.strip()[:500]
@@ -89,7 +100,7 @@ def assistant_page(request: Request, q: str = ""):
     error = None
     if question:
         if not os.environ.get("ANTHROPIC_API_KEY"):
-                error = f"The assistant could not answer right now ({type(problem).__name__}: {str(problem)[:300]})."
+            error = "The assistant is not configured: ANTHROPIC_API_KEY is not set."
         else:
             conn = get_connection()
             try:
@@ -97,7 +108,7 @@ def assistant_page(request: Request, q: str = ""):
             except PIILeak as leak:
                 error = str(leak)
             except Exception as problem:  # the AI service was unreachable, refused the key, etc.
-                error = f"The assistant could not answer right now ({type(problem).__name__})."
+                error = f"The assistant could not answer right now ({type(problem).__name__}: {str(problem)[:300]})."
             finally:
                 conn.close()
     return templates.TemplateResponse(

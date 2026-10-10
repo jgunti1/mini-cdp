@@ -67,6 +67,14 @@ TOOLS = [
         },
     },
     {
+        "name": "channel_report",
+        "description": (
+            "Compare acquisition channels by how well their subscribers stay engaged:"
+            " % stayed, gone cold, never opened, unsubscribed, and each channel's share of the total."
+        ),
+        "input_schema": {"type": "object", "properties": {}},
+    },
+    {
         "name": "most_engaged",
         "description": "Rank active subscribers by engagement score. You receive only how many were listed; the list is shown to the user.",
         "input_schema": {
@@ -129,6 +137,23 @@ def run_tool(conn, name, args):
             "note": "",
             "columns": ["", "Subscribers"],
             "rows": [[row["label"], row["subscribers"]] for row in rows],
+        }
+        return for_model, for_page
+
+    if name == "channel_report":
+        report = insights.channel_report(conn)
+        # Percentages and counts per channel only; no person appears in this.
+        for_model = {"rules": insights.CHANNEL_RULES, "channels": report}
+        for_page = {
+            "title": "Which channels bring readers who stay",
+            "note": insights.CHANNEL_RULES,
+            "columns": ["Channel", "Subscribers", "% of total", "% stayed", "% gone cold",
+                        "% never opened", "% unsubscribed", ""],
+            "rows": [
+                [r["channel"], r["subscribers"], r["share_of_total"], r["stayed_pct"], r["gone_cold_pct"],
+                 r["never_opened_pct"], r["unsubscribed_pct"], "small sample" if r["small_sample"] else ""]
+                for r in report
+            ],
         }
         return for_model, for_page
 

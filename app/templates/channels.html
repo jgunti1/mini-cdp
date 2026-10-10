@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mini CDP: Channels</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; color: #222; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0 1.5rem; }
+    th, td { text-align: left; padding: .4rem .6rem; border-bottom: 1px solid #ddd; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .muted { color: #777; }
+    .bar { display: inline-block; height: .7rem; background: #c97b63; border-radius: 2px; vertical-align: middle; }
+    .flag { color: #9a5b00; font-size: .9em; }
+  </style>
+</head>
+<body>
+  <h1>Mini CDP</h1>
+  <p><a href="/">Lookup</a> | <a href="/segments">Segments</a> | <strong>Channels</strong> | <a href="/assistant">Assistant</a></p>
+
+  <h2>Which channels bring readers who stay?</h2>
+  <p class="muted">{{ rules }}</p>
+
+  <table>
+    <tr>
+      <th>Channel</th>
+      <th class="num">Subscribers</th>
+      <th class="num">% of total</th>
+      <th class="num">% stayed</th>
+      <th></th>
+      <th class="num">% gone cold</th>
+      <th class="num">% never opened</th>
+      <th class="num">% unsubscribed</th>
+      <th></th>
+    </tr>
+    {% for row in report %}
+      <tr>
+        <td>{{ row.channel }}</td>
+        <td class="num">{{ row.subscribers }}</td>
+        <td class="num">{{ row.share_of_total }}</td>
+        <td class="num"><strong>{{ row.stayed_pct }}</strong></td>
+        <td><span class="bar" style="width: {{ row.stayed_pct }}px"></span></td>
+        <td class="num">{{ row.gone_cold_pct }}</td>
+        <td class="num">{{ row.never_opened_pct }}</td>
+        <td class="num">{{ row.unsubscribed_pct }}</td>
+        <td>{% if row.small_sample %}<span class="flag">small sample: a signal, not a verdict</span>{% endif %}</td>
+      </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>

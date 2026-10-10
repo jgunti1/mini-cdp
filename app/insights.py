@@ -74,3 +74,51 @@ def most_engaged(conn, limit=25):
 def _days_ago(days):
     from datetime import date, timedelta
     return (date.fromisoformat(TODAY) - timedelta(days=days)).isoformat()
+
+
+# ---------- Channel quality: which sources bring readers who stay? ----------
+
+CHANNEL_MIN_DAYS = 30      # only count people who have had at least this long to drift away
+SMALL_SAMPLE = 200         # groups smaller than this are flagged, not judged
+
+CHANNEL_RULES = (
+    f"Counts subscribers who signed up at least {CHANNEL_MIN_DAYS} days before {TODAY},"
+    " so everyone has had the same chance to go cold."
+    " 'Stayed' = still subscribed and opened an email in the last 30 days."
+    f" Channels with fewer than {SMALL_SAMPLE} subscribers are marked as a small sample."
+)
+
+
+def channel_report(conn):
+    """One row per acquisition source, best 'stayed' rate first."""
+    rows = conn.execute(
+        """
+        SELECT COALESCE(acquisition_source, 'unknown') AS channel,
+               COUNT(*) AS subscribers,
+               SUM(status = 'active' AND last_open_date >= date(:today, '-30 days')) AS stayed,
+               SUM(status = 'active' AND last_open_date <  date(:today, '-30 days')) AS gone_cold,
+               SUM(status = 'active' AND last_open_date IS NULL) AS never_opened,
+               SUM(status = 'unsubscribed') AS unsubscribed
+        FROM subscribers
+        WHERE signup_date <= date(:today, :min_age)
+        GROUP BY channel
+        """,
+        {"today": TODAY, "min_age": f"-{CHANNEL_MIN_DAYS} days"},
+    ).fetchall()
+
+    total = sum(row["subscribers"] for row in rows)
+    report = []
+    for row in rows:
+        n = row["subscribers"]
+        report.append({
+            "channel": row["channel"],
+            "subscribers": n,
+            "share_of_total": round(100 * n / total, 1) if total else 0.0,
+            "stayed_pct": round(100 * row["stayed"] / n, 1),
+            "gone_cold_pct": round(100 * row["gone_cold"] / n, 1),
+            "never_opened_pct": round(100 * row["never_opened"] / n, 1),
+            "unsubscribed_pct": round(100 * row["unsubscribed"] / n, 1),
+            "small_sample": n < SMALL_SAMPLE,
+        })
+    report.sort(key=lambda item: item["stayed_pct"], reverse=True)
+    return report
