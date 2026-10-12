@@ -141,7 +141,6 @@ I used AI to draft code and to help with debugging. I made the design decisions,
 AI was fast at building structure and wrong about details it couldn't see. Checking its output against real data and real errors caught every mistake. The full list is in [AI_LOG.md](AI_LOG.md).
 
 ## Known limitations and what I'd do next
-## Known limitations
 
 **Data and identity**
 - Web visits are linked by browser (`visitor_id`). A shared or public computer can attribute other people's visits to a subscriber, and visits from a second browser aren't linked at all.
@@ -149,6 +148,7 @@ AI was fast at building structure and wrong about details it couldn't see. Check
 - An app user first seen through the webhook (no email) isn't merged with a CSV profile if their email turns up later.
 - The CSV timestamps have no time zone, so UTC is assumed; webhook times are stored in UTC.
 - "Today" is fixed at 2026-09-28, as the brief specifies.
+- Names typed into the assistant reach the model. The scrubber removes emails, app, device, and visitor IDs because they follow a pattern, but names don't, so a question like “What has Julia Evans been reading?” is sent with the name in it. The risk is limited because the model has not tool that can look a person up: every tool returns counts or totals, so it can't find or reveal that person's data. A fix would be to build a list of known names from subscriber emails and scrub those too, though names that are also common words (Hope, Joy, Grace) would cause false matches.
 
 **Scale and operations**
 - SQLite is a single file, which suits this data size but not many simultaneous writers.
