@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Mini CDP", lifespan=lifespan)
+app = FastAPI(title="Mini CDP", lifespan=lifespan, docs_url=None, redoc_url=None,  openapi_url=None)
 templates = Jinja2Templates(directory="app/templates")
 
 
@@ -151,7 +151,11 @@ async def app_webhook(request: Request):
         conn.commit()
     except sqlite3.IntegrityError:
         conn.rollback()
-        result = "duplicate"  # the same event arrived twice at the same moment
+        already = conn.execute("SELECT 1 FROM app_events WHERE event_id = ?", (event.event_id,)).fetchone()
+        if already:
+            result = "duplicate"  # the same event arrived twice at the same moment
+        else:
+            raise HTTPException(status_code=500, detail="Database integrity error")
     finally:
         conn.close()
     return {"status": result, "event_id": event.event_id}
