@@ -30,6 +30,7 @@ Webhooks recieves event from the mobile as they happen, handles any repeats, lat
    - `ANTHROPIC_API_KEY`: your own key from console.anthropic.com (needed only for the Assistant page)
 3. `python -m uvicorn app.main:app --reload`, then open http://127.0.0.1:8000 in a regular browser
 4. Tests: `python -m pytest`
+5. data/ contains the synthetic CSVs supplied with the assessment (no real subscriber data), committed so the project runs out of the box. With real data, CSVs would never be committed: they’d be loaded from secure storage, and data/ would be in .gitignore
 
 ## Sending a webhook event
 
