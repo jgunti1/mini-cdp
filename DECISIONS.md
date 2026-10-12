@@ -87,11 +87,15 @@ Transparency: the page shows "What the AI model saw" for every answer. Alternati
 
   ## Limitations
 
-**Limitation 2:** Page shows the first 200 rows and no export.
+**Limitation 1:** Page shows the first 200 rows and no export.
 **Solution:** Add export and/or show more rows. 
 
-**Limitation 3:** If two or more people share a device, anonymous events all go to whoever logged in first. 
-**Solution:** Unsure.
+**Limitation 2:** If two or more people share a device, anonymous events all go to whoever logged in first. 
+**Solution:** Not sure there is a fix.
+
+**Limitation 3:** Lookup uses GET, so searched emails end up in URLs, which means server logs and browser history.
+**Solution:** Use POST.
+
 
 ### Channel report 
 

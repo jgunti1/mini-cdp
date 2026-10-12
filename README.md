@@ -149,6 +149,7 @@ AI was fast at building structure and wrong about details it couldn't see. Check
 - The CSV timestamps have no time zone, so UTC is assumed; webhook times are stored in UTC.
 - "Today" is fixed at 2026-09-28, as the brief specifies.
 - Names typed into the assistant reach the model. The scrubber removes emails, app, device, and visitor IDs because they follow a pattern, but names don't, so a question like “What has Julia Evans been reading?” is sent with the name in it. The risk is limited because the model has not tool that can look a person up: every tool returns counts or totals, so it can't find or reveal that person's data. A fix would be to build a list of known names from subscriber emails and scrub those too, though names that are also common words (Hope, Joy, Grace) would cause false matches.
+- Lookup uses GET, so searched emails end up in URLs, which means server logs and browser history. I’d switch it to POST.
 
 **Scale and operations**
 - SQLite is a single file, which suits this data size but not many simultaneous writers.
